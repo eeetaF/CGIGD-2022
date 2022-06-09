@@ -11,7 +11,7 @@ using namespace linalg::aliases;
 
 namespace cg
 {
-	// DONE lab 1
+	// TODO: Lab 1.02. Implement `cg::resource` class
 	template<typename T>
 	class resource
 	{
@@ -74,14 +74,13 @@ namespace cg
 	{
 		return data.size();
 	}
-
 	template<typename T>
 	inline size_t resource<T>::get_stride() const
 	{
 		return stride;
 	}
 
-	// DONE lab 1
+	// TODO: Lab 1.02. Implement `cg::color` and `cg::unsigned_color` structs
 	struct color
 	{
 		static color from_float3(const float3& in)
@@ -91,7 +90,8 @@ namespace cg
 		};
 		float3 to_float3() const
 		{
-			return float3{r, g, b};
+			return float3{
+					r, g, b};
 		}
 		float r;
 		float g;
@@ -106,14 +106,18 @@ namespace cg
 			out.r = std::clamp(static_cast<int>(255.f * color.r), 0, 255);
 			out.g = std::clamp(static_cast<int>(255.f * color.g), 0, 255);
 			out.b = std::clamp(static_cast<int>(255.f * color.b), 0, 255);
+
+			return out;
 		};
 		static unsigned_color from_float3(const float3& color)
 		{
 			unsigned_color out{};
+
 			float3 preprocessed = clamp(255.f * color, 0.f, 255.f);
 			out.r = static_cast<int>(preprocessed.x);
 			out.g = static_cast<int>(preprocessed.y);
 			out.b = static_cast<int>(preprocessed.z);
+
 			return out;
 		};
 		float3 to_float3() const
@@ -121,7 +125,8 @@ namespace cg
 			return float3{
 						   static_cast<float>(r),
 						   static_cast<float>(g),
-						   static_cast<float>(b),
+						   static_cast<float>(b)
+
 				   } /
 				   255.f;
 		};
@@ -134,6 +139,15 @@ namespace cg
 	// TODO: Lab 1.03. Implement `cg::vertex` struct
 	struct vertex
 	{
+		float x, y, z;
+		float nx, ny, nz;
+
+		float u, v;
+		float ambient_r, ambient_g, ambient_b;
+		float emissive_r, emissive_g, emissive_b;
+		float diffuse_r, diffuse_g, diffuse_b;
+
+
 	};
 
 }// namespace cg
