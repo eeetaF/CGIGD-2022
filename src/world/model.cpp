@@ -22,8 +22,12 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 
 	tinyobj::ObjReader reader;
 	if (!reader.ParseFromFile(model_path.string(), readerConfig))
+	{
 		if (!reader.Error().empty())
-			THROW_ERROR(reader.Error())
+		{
+			THROW_ERROR(reader.Error());
+		}
+	}
 
 	auto& attrib = reader.GetAttrib();
 	auto& shapes = reader.GetShapes();
@@ -35,7 +39,6 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 		size_t index_offset = 0;
 		unsigned int vertex_buffer_size = 0;
 		unsigned int index_buffer_size = 0;
-
 		std::map<std::tuple<int, int, int>, unsigned int> index_map;
 		const auto& mesh = shapes[s].mesh;
 		for (size_t f = 0; f < mesh.num_face_vertices.size(); f++)
@@ -48,7 +51,6 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 						idx.vertex_index,
 						idx.normal_index,
 						idx.texcoord_index);
-
 				if (index_map.count(idx_tuple) == 0)
 				{
 					index_map[idx_tuple] = vertex_buffer_size;
@@ -59,13 +61,18 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 			index_offset += fv;
 		}
 		vertex_buffers.push_back(
-				std::make_shared<cg::resource<cg::vertex>>(vertex_buffer_size));
+				std::make_shared<cg::resource<cg::vertex>>(
+						vertex_buffer_size));
 		index_buffers.push_back(
-				std::make_shared<cg::resource<unsigned int>>(index_buffer_size));
-
+				std::make_shared<cg::resource<unsigned int>>(
+						index_buffer_size));
 		if (!materials[mesh.material_ids[0]].diffuse_texname.empty())
-			textures[s] = model_path.parent_path() / materials[mesh.material_ids[0]].diffuse_texname;
+		{
+			textures[s] = model_path.parent_path() /
+						  materials[mesh.material_ids[0]].diffuse_texname;
+		}
 	}
+
 	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		size_t index_offset = 0;
@@ -75,7 +82,6 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 		auto index_buffer = index_buffers[s];
 		std::map<std::tuple<int, int, int>, unsigned int> index_map;
 		const auto& mesh = shapes[s].mesh;
-
 		for (size_t f = 0; f < mesh.num_face_vertices.size(); f++)
 		{
 			int fv = mesh.num_face_vertices[f];
@@ -90,15 +96,16 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 						attrib.vertices[3 * a_id.vertex_index],
 						attrib.vertices[3 * a_id.vertex_index + 1],
 						attrib.vertices[3 * a_id.vertex_index + 2]};
+
 				float3 b{
 						attrib.vertices[3 * b_id.vertex_index],
 						attrib.vertices[3 * b_id.vertex_index + 1],
 						attrib.vertices[3 * b_id.vertex_index + 2]};
+
 				float3 c{
 						attrib.vertices[3 * c_id.vertex_index],
 						attrib.vertices[3 * c_id.vertex_index + 1],
 						attrib.vertices[3 * c_id.vertex_index + 2]};
-
 				normal = normalize(cross(b - a, c - a));
 			}
 
@@ -111,7 +118,9 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 						idx.texcoord_index);
 				if (index_map.count(idx_tuple) == 0)
 				{
-					cg::vertex& vertex = vertex_buffer->item(vertex_buffer_id);
+					cg::vertex& vertex = vertex_buffer->item(
+							vertex_buffer_id);
+
 					vertex.x = attrib.vertices[3 * idx.vertex_index];
 					vertex.y = attrib.vertices[3 * idx.vertex_index + 1];
 					vertex.z = attrib.vertices[3 * idx.vertex_index + 2];
@@ -142,8 +151,8 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 
 					if (materials.size() > 0)
 					{
-						const auto& material = materials[mesh.material_ids[f]];
-
+						const auto& material =
+								materials[mesh.material_ids[f]];
 
 						vertex.ambient_r = material.ambient[0];
 						vertex.ambient_g = material.ambient[1];
@@ -163,7 +172,7 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 				index_buffer->item(index_buffer_id) = index_map[idx_tuple];
 				index_buffer_id++;
 			}
-			index_offset+= fv;
+			index_offset += fv;
 		}
 	}
 }
